@@ -3,6 +3,8 @@ from flask import Flask
 from flask import render_template
 import logging
 import paypalrestsdk
+from paypalrestsdk.openid_connect import Tokeninfo, Userinfo
+
 from flask import request
 
 # server
@@ -22,19 +24,26 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-  return_url="https://b3c89e47.ngrok.io/paypal_authenticated"
-  # return_url = "http://127.0.0.1:5000/paypal_authenticated"
+  base_url = request.url_root
+  print base_url
+  return_url = request.url_root + "paypal_authenticated"
   return render_template('login.html', client_id=os.environ.get('PAYPAL_CLIENT_ID'), return_url=return_url, mode=os.environ.get('PAYPAL_MODE'))
 
 @app.route('/paypal_authenticated')
 def paypal_authenticated():
   print request
   code = request.args.get('code')
-  import pdb; pdb.set_trace()
-  return "yeah!"
+  tokeninfo = Tokeninfo.create(code)
+  # save tokeninfo to user db
+  print tokeninfo
+  if tokeninfo:
+    userinfo  = tokeninfo.userinfo()
+    print userinfo
+    return "yeah!"
+  else:
+    return "could not login"
 
-
-
+  # import pdb; pdb.set_trace()
 
 # @app.route('/')
 # def login():
