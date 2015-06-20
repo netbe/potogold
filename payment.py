@@ -15,33 +15,57 @@ logging.basicConfig(level=logging.INFO)
 
 
 
-payment = paypalrestsdk.Payment({
-  "intent": "sale",
-  "payer": {
-    "payment_method": "credit_card",
-    "funding_instruments": [{
-      "credit_card": {
-        "type": "visa",
-        "number": "4417119669820331",
-        "expire_month": "11",
-        "expire_year": "2018",
-        "cvv2": "874",
-        "first_name": "Joe",
-        "last_name": "Shopper" }}]},
-  "transactions": [{
-    "item_list": {
-      "items": [{
-        "name": "item",
-        "sku": "item",
-        "price": "1.00",
-        "currency": "USD",
-        "quantity": 1 }]},
-    "amount": {
-      "total": "1.00",
-      "currency": "USD" },
-    "description": "This is the payment transaction description." }]})
+# payment = paypalrestsdk.Payment({
+#     "intent": "sale",
+#     "payer": {
+#         "payment_method": "paypal"
+#     },
+#     "transactions": [
+#         {
+#             "amount": {
+#                 "currency": "USD",
+#                 "total": "110.54"
+#             },
+#             "description": "This is the payment transaction description."
+#         }
+#     ],
+#     "redirect_urls": {
+#         "return_url": "http://www.ebay.com",
+#         "cancel_url": "http://www.milo.com"
+#     }
+# })
 
-if payment.create():
-  print("Payment created successfully")
-else:
-  print(payment.error)
+# if payment.create():
+#   print("Payment[%s] created successfully" % (payment.id))
+#   # PayerID is required to approve the payment.
+#   if payment.execute({"payer_id": "DUFRQ8GWYMJXC"}):  # return True or False
+#     print("Payment[%s] execute successfully" % (payment.id))
+#   else:
+#     print(payment.error)
+
+# else:
+#   print(payment.error)
+
+from paypalrestsdk.openid_connect import Tokeninfo, Userinfo
+
+
+# Generate login url
+login_url = Tokeninfo.authorize_url({ "scope": "openid profile"})
+
+# Create tokeninfo with Authorize code
+tokeninfo = Tokeninfo.create("Replace with Authorize code")
+
+# Refresh tokeninfo
+tokeninfo = tokeninfo.refresh()
+
+# Create tokeninfo with refresh_token
+tokeninfo = Tokeninfo.create_with_refresh_token("Replace with refresh_token")
+
+# Get userinfo
+userinfo  = tokeninfo.userinfo()
+
+# Get userinfo with access_token
+userinfo  = Userinfo.get("Replace with access_token")
+
+# Generate logout url
+logout_url = tokeninfo.logout_url()
