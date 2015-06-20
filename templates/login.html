@@ -7,7 +7,7 @@ paypal.use( ["login"], function(login) {
   login.render ({
     "appid": "{{client_id}}",
     "authend": "{{mode}}",
-    "scopes": "profile email address phone https://uri.paypal.com/services/paypalattributes",
+    "scopes": "openid",
     "containerid": "paypal",
     "locale": "en-us",
     "returnurl": "{{return_url}}"
