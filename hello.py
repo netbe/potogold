@@ -195,9 +195,10 @@ def get_bounties():
     rewards = session.query(Reward).all()
     return [(reward.github_issue_url, reward.sender_github_username) for reward in rewards]
 
-def notify_bounty_setter(username):
+def notify_bounty_setter(bounty_username, bounty_email, fixer_name):
     sms.send_sms("004915204062600", 'Your issue has been resolved!') #FIXME don't hardcode Tom's number -- should be a field in the database
     #send mail
+    send_email_notification(bounty_email, username, fixer_name)
 
 
 if __name__ == "__main__":
