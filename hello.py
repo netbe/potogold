@@ -3,7 +3,7 @@ import mailer
 import sms
 import github
 import braintree
-from models import User, Reward, SeenComment, Base
+from models import User, Reward, SeenComment, Notification, Base
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -189,6 +189,20 @@ def mark_comment_url_seen(url):
     """
     comment = SeenComment(github_comment_url=url)
     session.add(comment)
+    session.commit()
+
+
+def get_sent_notifications():
+    """
+    """
+    notifications = session.query(Notification).all()
+    return set([(notification.github_issue_url, notification.github_username) for notification in notifications])
+
+def mark_notification_sent(url, username):
+    """
+    """
+    notification = Notification(github_issue_url=url, github_username=username)
+    session.add(notification)
     session.commit()
 
 def get_bounties():

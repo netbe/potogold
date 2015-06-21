@@ -32,5 +32,11 @@ class SeenComment(Base):
     id = Column(Integer, primary_key=True)
     github_comment_url = Column(Text())
 
+class Notification(Base):
+    __tablename__ = 'notifications'
+    id = Column(Integer, primary_key=True)
+    github_username = Column(Text())
+    github_issue_url = Column(Text())
+
 engine = create_engine(os.environ['DATABASE_URL'])
 Base.metadata.create_all(engine)
