@@ -79,7 +79,7 @@ def add_payment():
   user = db.session.query(User).filter_by(id=user_id)
   user.nonce = nonce
   db.session.commit()
-  return "todo"
+  return render_template('success.html')
 
 @app.route("/client_token", methods=["GET"])
 def client_token():

@@ -1,6 +1,9 @@
-from sqlalchemy import Model, Column, Integer, String, Text, Float
+from sqlalchemy import Column, Integer, String, Text, Float
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
 
-class User(Model):
+class User(Base):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     email = Column(String(160))
     github_username = Column(String(80))
@@ -25,7 +28,8 @@ class User(Model):
         return '<git username %r>' % self.github_username
 
 
-class Reward(Model):
+class Reward(Base):
+    __tablename__ = 'rewards'
     id = Column(Integer, primary_key=True)
     github_issue_url = Column(Text())
     amount = Column(Float())
@@ -46,7 +50,8 @@ class Reward(Model):
         return '<sender %r, recipient %r, amount %f>' % (self.sender_github_username, self.recipient_github_username, self.amount)
 
 
-class SeenComment(Model):
+class SeenComment(Base):
+    __tablename__ = 'seen_comments'
     id = Column(Integer, primary_key=True)
     github_comment_url = Column(Text())
 
