@@ -46,7 +46,7 @@ def instructions():
                 mark_seen(comment[u'url'])
                 author = comment[u'user'][u'login']
                 yield (author, issue_url, comment['body'].strip())
- 
+
 def set_bounty(author, issue_url, amount):
     comment(issue_url, '@%s offers $%.2f' % (author, amount))
 
@@ -59,7 +59,7 @@ def comment(issue_url, text):
     request = session.post(url, data=post_body)
     if request.status_code != 201:
         raise Exception('URL %s status code %i' % (url, request.status_code))
-        
+
 def perform(author, issue_url, command):
     if re.match(REWARD_CRIB, command):
         recipient = re.match(REWARD_CRIB, command).groups()[0]
