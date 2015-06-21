@@ -1,14 +1,16 @@
 import requests
+import time
 import json
 import re
 from requests.auth import HTTPBasicAuth
-
+#FIXME need to add the checking for closed issues, to trigger the sending of the email
+POLL_DELAY = 1
 BASE = 'https://api.github.com'
 #FIXME make env var
 username = 'potogold'
 password = 'JrX4vav7?yoh'
 
-ADD_CRIB = r'^\@%s add \$([0-9]+.[0-9]{0,2})\.{0,1}$' % username
+ADD_CRIB = r'^\@%s add \$([0-9]+(|.[0-9]{0,2}))\.{0,1}$' % username
 REWARD_CRIB = r'^\@%s reward \@((\w|-)*)\.{0,1}$' % username
 
 session = requests.Session()
@@ -17,8 +19,8 @@ session.auth = HTTPBasicAuth(username, password)
 """
 implementation note: there doesn't seem to be a link to the comment in the notification, so we have to iterate over all the comments in an issue, skipping over the comments that we've already processed.
 """
-seen_comments = set() # FIXME should be in DB
-#seen_comments = set([u'https://api.github.com/repos/netbe/potogold/issues/comments/113826443', u'https://api.github.com/repos/netbe/potogold/issues/comments/113805378', u'https://api.github.com/repos/netbe/potogold/issues/comments/113799706', u'https://api.github.com/repos/netbe/potogold/issues/comments/113834735', u'https://api.github.com/repos/netbe/potogold/issues/comments/113825783'])
+#seen_comments = set() # FIXME should be in DB
+seen_comments = set([u'https://api.github.com/repos/netbe/potogold/issues/comments/113826443', u'https://api.github.com/repos/netbe/potogold/issues/comments/113805378', u'https://api.github.com/repos/netbe/potogold/issues/comments/113799706', u'https://api.github.com/repos/netbe/potogold/issues/comments/113834735', u'https://api.github.com/repos/netbe/potogold/issues/comments/113825783'])
 
 def mentions():
     """
@@ -68,6 +70,8 @@ def perform(author, issue_url, command):
     else:
         comment(issue_url, "@%s I don't understand" % author)
 
-for bits in instructions():
-    print bits
-    #perform(*instructions)
+while True:
+    for bits in instructions():
+        print bits
+        perform(*bits)
+    time.sleep(POLL_DELAY)
