@@ -56,7 +56,7 @@ def set_bounty(author, issue_url, amount):
 
 def release_bounty(author, issue_url, recipient):
     comment(issue_url, '@%s released funds to @%s' % (author, recipient))
-    pay(author, recipient, issue_url):
+    pay(author, recipient, issue_url)
 
 def comment(issue_url, text):
     url = issue_url + u'/comments'
