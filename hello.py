@@ -1,8 +1,5 @@
 import os
-from flask import Flask
-from flask import render_template
 import logging
-from flask import request
 
 import braintree
 import json
@@ -11,6 +8,12 @@ from inspect import getmembers
 from pprint import pprint
 from datetime import date, timedelta
 
+from flask import Flask
+from flask import render_template
+from flask import request
+from flask.ext.sqlalchemy import SQLAlchemy
+
+
 braintree.Configuration.configure(braintree.Environment.Sandbox,
                                   merchant_id=os.environ.get('BRAINTREE_MERCHANT_ID'),
                                   public_key=os.environ.get('BRAINTREE_PUBLIC_KEY'),
@@ -18,7 +21,8 @@ braintree.Configuration.configure(braintree.Environment.Sandbox,
 
 
 app = Flask(__name__)
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
 
 @app.route("/register/step1", methods=["GET"] )
 def register():
@@ -26,7 +30,8 @@ def register():
 
 @app.route("/register/step2", methods=["POST"])
 def create_user():
-  import pdb; pdb.set_trace()
+
+
   firstname = request.form["firstname"]
   lastname = request.form["lastname"]
   email = request.form["email"]
@@ -37,6 +42,20 @@ def create_user():
    "last_name": lastname,
    "email": email
   })
+  # create submerchant
+  result = braintree.MerchantAccount.create({
+    'individual': {
+        'first_name': "Jane",
+        'last_name': "Doe",
+        'email': "jane@14ladders.com",
+    },
+    'funding': {
+        'email': "funding@blueladders.com",
+    },
+    "tos_accepted": True,
+    "master_merchant_account_id": mymerchandid
+})
+  #  result.merchant_account.id stores to user and use for rewarding
   if result.is_success:
     return render_template('payment.html')
   else:
@@ -94,9 +113,14 @@ def paypal_authenticated():
 # def login():
 
 ##########################Payment###########################################
+def pay(receiver_id, github_issue):
+  # find reward and then the customer attached
+  # reward.transaction_id
+  result = braintree.Transaction.void(transa)
 
 def set_reward(github_user_id, price, issue_url):
   # find user from github
+  # user
   customer = braintree.Customer.find("35653229")
   payment_method = braintree.PaymentMethod.find("kysd7w")
   # create reward
@@ -124,6 +148,45 @@ def set_reward_example():
 
   else:
     print "nooooo!"
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(160))
+    github_username = db.Column(db.String(80))
+    github_auth_token = db.Column(db.Text())
+    github_refresh_token = db.Column(db.Text())
+    braintree_customer_id = db.Column(db.Text())
+    braintree_payment_token = db.Column(db.Text())
+
+    def __init__(self, email, github_username, github_auth_token, github_refresh_token, braintree_customer_id, braintree_payment_token):
+        self.email = email
+        self.github_username = github_username
+        self.github_auth_token = github_auth_token
+        self.github_refresh_token = github_refresh_token
+        self.braintree_customer_id = braintree_customer_id
+        self.braintree_payment_token = braintree_payment_token
+
+    def __repr__(self):
+        return '<git username %r>' % self.github_username
+
+
+class Reward(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    github_issue_url = db.Column(db.Text())
+    amount = db.Column(db.Float())
+    sender_github_username = db.Column(db.String(80))
+    recipient_github_username = db.Column(db.String(80))
+
+    def __init__(self, github_issue_url, amount, sender_github_username, recipient_github_username):
+        self.github_issue_url = github_issue_url
+        self.amount = amount
+        self.sender_github_username = sender_github_username
+        self.recipient_github_username = recipient_github_username
+
+    def __repr__(self):
+        return '<sender %r, recipient %r, amount %f>' % (self.sender_github_username, self.recipient_github_username, self.amount)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
