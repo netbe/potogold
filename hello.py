@@ -2,25 +2,70 @@ import os
 from flask import Flask
 from flask import render_template
 import logging
-import paypalrestsdk
-from paypalrestsdk.openid_connect import Tokeninfo, Userinfo
-
 from flask import request
 
-# server
-# paypalrestsdk.configure({
-#   "mode": os.environ.get('PAYPAL_MODE'), # sandbox or live
-#   "client_id": 'AcAdwD6mfFztdmJKaEbZCdGvQGakZPsGQnDKG5g0PpjiPgSRpXo7qGf_oN5gdRVmOAC1G3WGoahony-I',
-#   "client_secret": 'EJH0voy76bYLfzc9vcy6r7-2FjdeuAMc-6xeWcXZIA09OiqQ0Ynup8Rd-7BRhfEfcqSsC7u1ENjkTBrq'
-#    })
+import braintree
+import json
+import os.path
+from inspect import getmembers
+from pprint import pprint
+from datetime import date, timedelta
 
-paypalrestsdk.configure({
-  "mode": os.environ.get('PAYPAL_MODE'), # sandbox or live
-  "client_id": os.environ.get('PAYPAL_CLIENT_ID'),
-  "client_secret": os.environ.get('PAYPAL_CLIENT_SECRET')
-   })
+braintree.Configuration.configure(braintree.Environment.Sandbox,
+                                  merchant_id=os.environ.get('BRAINTREE_MERCHANT_ID'),
+                                  public_key=os.environ.get('BRAINTREE_PUBLIC_KEY'),
+                                  private_key=os.environ.get('BRAINTREE_PRIVATE_KEY'))
+
 
 app = Flask(__name__)
+
+
+@app.route("/register/step1", methods=["GET"] )
+def register():
+  return render_template('register.html')
+
+@app.route("/register/step2", methods=["POST"])
+def create_user():
+  import pdb; pdb.set_trace()
+  firstname = request.form["firstname"]
+  lastname = request.form["lastname"]
+  email = request.form["email"]
+  github = request.form["github"]
+  # create user
+  result = braintree.Customer.create({
+   "first_name": firstname,
+   "last_name": lastname,
+   "email": email
+  })
+  if result.is_success:
+    return render_template('payment.html')
+  else:
+    return render_template('register.html')
+
+
+@app.route("/register/step3", methods=["POST"])
+def add_payment():
+  user_id = request.form["user_id"]
+  nonce = request.form["payment_method_nonce"]
+  print user_id
+  print nonce
+  # add nonce to db
+  return "todo"
+
+@app.route("/client_token", methods=["GET"])
+def client_token():
+  result = braintree.Customer.create({
+    "id": "customer_143",
+    "first_name": "Katrina"
+  })
+  if result.is_success:
+    token = braintree.ClientToken.generate({
+      "customer_id": result.customer.id
+    })
+    return render_template('register.html', client_token=token)
+  else:
+    return "no"
+
 
 @app.route('/')
 def hello():
@@ -48,9 +93,38 @@ def paypal_authenticated():
 # @app.route('/')
 # def login():
 
+##########################Payment###########################################
 
+def set_reward(github_user_id, price, issue_url):
+  # find user from github
+  customer = braintree.Customer.find("35653229")
+  payment_method = braintree.PaymentMethod.find("kysd7w")
+  # create reward
+  # create transaction
+  result = braintree.Transaction.sale({
+    "amount": "10.00",
+    "payment_method_token": payment_method.token,
+    "customer_id": customer.id
+  })
 
-# def set_reward():
+def set_reward_example():
+  # find user from github
+  customer = braintree.Customer.find("35653229")
+  payment_method = braintree.PaymentMethod.find("kysd7w")
+  # create reward
+  # create transaction
+  result = braintree.Transaction.sale({
+    "amount": "10.00",
+    "payment_method_token": payment_method.token,
+    "customer_id": customer.id
+  })
+  print result
+  if result.is_success:
+    print "yeah!!"
+
+  else:
+    print "nooooo!"
 
 if __name__ == "__main__":
     app.run(debug=True)
+    # set_reward_example()

@@ -1,3 +1,4 @@
+braintree==3.16.0
 cffi==1.1.2
 cryptography==0.9.1
 enum34==1.0.4
