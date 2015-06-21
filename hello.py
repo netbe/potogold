@@ -1,6 +1,9 @@
 import os
 import logging
 
+import mailer
+import sms
+
 import braintree
 import json
 import os.path
@@ -160,5 +163,5 @@ def set_reward(github_user_id, price, issue_url):
   db.session.add(reward)
   db.session.commit()
 
-if __name__ == "__main__":
+
     app.run(debug=True)
