@@ -4,6 +4,7 @@ import logging
 import braintree
 import json
 import os.path
+from models import User, Reward, SeenComment
 from inspect import getmembers
 from pprint import pprint
 from datetime import date, timedelta
@@ -40,7 +41,6 @@ def create_user():
    "last_name": lastname,
    "email": email
   })
-
   if result.is_success:
     # create submerchant
     result = braintree.MerchantAccount.create({
@@ -66,7 +66,7 @@ def create_user():
     #  result.merchant_account.id stores to user and use for rewarding
     if result.is_success:
       client_token = braintree.ClientToken.generate({})
-      return render_template('payment.html', client_token=client_token)
+      return render_template('payment.html', client_token=client_token, user_id=user.id)
     else:
       return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
   else:
@@ -76,10 +76,10 @@ def create_user():
 def add_payment():
   user_id = request.form["user_id"]
   nonce = request.form["payment_method_nonce"]
-  print user_id
-  print nonce
-  # add nonce to db
-  return "todo"
+  user = db.session.query(User).filter_by(id=user_id)
+  user.nonce = nonce
+  db.session.commit()
+  return render_template('success.html')
 
 @app.route("/client_token", methods=["GET"])
 def client_token():
@@ -121,16 +121,17 @@ def paypal_authenticated():
 
 ##########################Payment###########################################
 def pay(sender_id, receiver_id, github_issue):
-  reward = Reward.query.filter_by(github_issue_url=github_issue, sender_github_username=sender_id, recipient_github_username='')
-  #FIXME how to update reward row (ie to set recipient_github_username)?
+  reward = db.session.query(Reward).filter_by(github_issue_url=github_issue, sender_github_username=sender_id, recipient_github_username='')
+  reward.recipient_github_username = receiver_id
+  db.session.commit()
   # void the authorization transaction
   result = braintree.Transaction.void(reward.auth_transaction_id)
   #FIXME make the transaction between the users
-  payer = User.query.filter_by(github_username=sender_id).first()
-  payee = User.query.filter_by(github_username=receiver_id).first()
+  payer = db.session.query(User).filter_by(github_username=sender_id).first()
+  payee = db.session.query(User).filter_by(github_username=receiver_id).first()
 
 def set_reward(github_user_id, price, issue_url):
-  user = User.query.filter_by(github_username=github_user_id).first()
+  user = db.session.query(User).filter_by(github_username=github_user_id).first()
   if user is None:
       raise KeyError('user %s unknown' % github_user_id)
   customer = braintree.Customer.find(user.braintree_customer_id)
@@ -147,49 +148,5 @@ def set_reward(github_user_id, price, issue_url):
   db.session.add(reward)
   db.session.commit()
 
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(160))
-    github_username = db.Column(db.String(80))
-    github_auth_token = db.Column(db.Text())
-    github_refresh_token = db.Column(db.Text())
-    braintree_customer_id = db.Column(db.Text())
-    braintree_payment_token = db.Column(db.Text())
-
-    def __init__(self, email, github_username, github_auth_token, github_refresh_token, braintree_customer_id, braintree_payment_token):
-        self.email = email
-        self.github_username = github_username
-        self.github_auth_token = github_auth_token
-        self.github_refresh_token = github_refresh_token
-        self.braintree_customer_id = braintree_customer_id
-        self.braintree_payment_token = braintree_payment_token
-
-    def __repr__(self):
-        return '<git username %r>' % self.github_username
-
-
-class Reward(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    github_issue_url = db.Column(db.Text())
-    amount = db.Column(db.Float())
-    sender_github_username = db.Column(db.String(80))
-    recipient_github_username = db.Column(db.String(80))
-    auth_transaction_id = db.Column(db.Text())
-    transaction_id = db.Column(db.Text())
-
-    def __init__(self, github_issue_url, amount, sender_github_username, recipient_github_username, auth_transaction_id, transaction_id):
-        self.github_issue_url = github_issue_url
-        self.amount = amount
-        self.sender_github_username = sender_github_username
-        self.recipient_github_username = recipient_github_username
-        self.auth_transaction_id = auth_transaction_id
-        self.transaction_id = transaction_id
-
-    def __repr__(self):
-        return '<sender %r, recipient %r, amount %f>' % (self.sender_github_username, self.recipient_github_username, self.amount)
-
-
 if __name__ == "__main__":
     app.run(debug=True)
-    # set_reward_example()
