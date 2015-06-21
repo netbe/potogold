@@ -121,11 +121,13 @@ def paypal_authenticated():
 
 ##########################Payment###########################################
 def pay(sender_id, receiver_id, github_issue):
-    #recipient_github_username
-  reward = Reward.query.filter_by(github_issue_url=github_issue, sender_github_username=sender_id)
-  # find reward and then the customer attached
-  # reward.transaction_id
-  result = braintree.Transaction.void(transa)
+  reward = Reward.query.filter_by(github_issue_url=github_issue, sender_github_username=sender_id, recipient_github_username='')
+  #FIXME how to update reward row (ie to set recipient_github_username)?
+  # void the authorization transaction
+  result = braintree.Transaction.void(reward.auth_transaction_id)
+  #FIXME make the transaction between the users
+  payer = User.query.filter_by(github_username=sender_id).first()
+  payee = User.query.filter_by(github_username=receiver_id).first()
 
 def set_reward(github_user_id, price, issue_url):
   user = User.query.filter_by(github_username=github_user_id).first()
@@ -133,16 +135,17 @@ def set_reward(github_user_id, price, issue_url):
       raise KeyError('user %s unknown' % github_user_id)
   customer = braintree.Customer.find(user.braintree_customer_id)
   payment_method = braintree.PaymentMethod.find(user.braintree_payment_token)
-  # create reward
-  reward = Reward(issue_url, price, github_user_id, '')
-  db.session.add(reward)
-  db.session.commit()
   # create transaction
   result = braintree.Transaction.sale({
-    "amount": "10.00",
+    "amount": str(price), # FIXME why a string?
     "payment_method_token": payment_method.token,
     "customer_id": customer.id
   })
+  # create reward
+  auth_transaction_id = result.transaction.id
+  reward = Reward(issue_url, price, github_user_id, '', auth_transaction_id, '')
+  db.session.add(reward)
+  db.session.commit()
 
 
 class User(db.Model):
@@ -172,12 +175,16 @@ class Reward(db.Model):
     amount = db.Column(db.Float())
     sender_github_username = db.Column(db.String(80))
     recipient_github_username = db.Column(db.String(80))
+    auth_transaction_id = db.Column(db.Text())
+    transaction_id = db.Column(db.Text())
 
-    def __init__(self, github_issue_url, amount, sender_github_username, recipient_github_username):
+    def __init__(self, github_issue_url, amount, sender_github_username, recipient_github_username, auth_transaction_id, transaction_id):
         self.github_issue_url = github_issue_url
         self.amount = amount
         self.sender_github_username = sender_github_username
         self.recipient_github_username = recipient_github_username
+        self.auth_transaction_id = auth_transaction_id
+        self.transaction_id = transaction_id
 
     def __repr__(self):
         return '<sender %r, recipient %r, amount %f>' % (self.sender_github_username, self.recipient_github_username, self.amount)
