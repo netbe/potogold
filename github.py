@@ -56,7 +56,7 @@ def set_bounty(author, issue_url, amount):
 
 def release_bounty(author, issue_url, recipient):
     comment(issue_url, '@%s released funds to @%s' % (author, recipient))
-    pay(author, recipient, issue_url):
+    pay(author, recipient, issue_url)
 
 def comment(issue_url, text):
     url = issue_url + u'/comments'
@@ -75,8 +75,13 @@ def perform(author, issue_url, command):
     else:
         comment(issue_url, "@%s I don't understand" % author)
 
-while True:
+def refresh():
     for bits in instructions():
         print bits
         perform(*bits)
-    time.sleep(POLL_DELAY)
+
+
+if __name__ == "__main__":
+    while True:
+        refresh()
+        time.sleep(POLL_DELAY)
