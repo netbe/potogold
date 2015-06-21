@@ -3,7 +3,7 @@ import time
 import json
 import re
 from requests.auth import HTTPBasicAuth
-from hello import set_reward, pay
+import hello
 
 #FIXME need to add the checking for closed issues, to trigger the sending of the email
 POLL_DELAY = 1
@@ -52,11 +52,11 @@ def instructions():
 
 def set_bounty(author, issue_url, amount):
     comment(issue_url, '@%s offers $%.2f' % (author, amount))
-    set_reward(author, amount, issue_url)
+    hello.set_reward(author, amount, issue_url)
 
 def release_bounty(author, issue_url, recipient):
     comment(issue_url, '@%s released funds to @%s' % (author, recipient))
-    pay(author, recipient, issue_url)
+    hello.pay(author, recipient, issue_url)
 
 def comment(issue_url, text):
     url = issue_url + u'/comments'

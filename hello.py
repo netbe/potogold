@@ -80,9 +80,13 @@ def create_user():
     if result.is_success:
       client_token = braintree.ClientToken.generate({})
       user = User(email, github, '', '', customer_id, '', '', result.merchant_account.id)
-      return render_template('payment.html', client_token=client_token, user_id=user.id)
-    else:
-      return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
+      return render_template('payment.html', client_token=client_token, user_id=1)
+      # db.session.commit()
+
+      if user:
+        return render_template('payment.html', client_token=client_token, user_id=user.id)
+
+    return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
   else:
       return render_template('register.html',  errortitle="create customer", error=result.errors.deep_errors)
 
