@@ -35,7 +35,6 @@ def create_user():
   lastname = request.form["lastname"]
   email = request.form["email"]
   github = request.form["github"]
-  # create user
   result = braintree.Customer.create({
    "first_name": firstname,
    "last_name": lastname,
@@ -66,6 +65,8 @@ def create_user():
     #  result.merchant_account.id stores to user and use for rewarding
     if result.is_success:
       client_token = braintree.ClientToken.generate({})
+      #def __init__(self, email, github_username, github_auth_token, github_refresh_token, braintree_customer_id, braintree_payment_token, nonce, merchant_account_id):
+      user = User(email, github, '', '', result.customer.id, '', '', result.merchant_account.id)
       return render_template('payment.html', client_token=client_token, user_id=user.id)
     else:
       return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
