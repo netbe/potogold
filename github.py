@@ -75,8 +75,13 @@ def perform(author, issue_url, command):
     else:
         comment(issue_url, "@%s I don't understand" % author)
 
-while True:
+def refresh():
     for bits in instructions():
         print bits
         perform(*bits)
-    time.sleep(POLL_DELAY)
+
+
+if __name__ == "__main__":
+    while True:
+        refresh()
+        time.sleep(POLL_DELAY)

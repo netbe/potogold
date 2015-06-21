@@ -8,7 +8,7 @@ from models import User, Reward, SeenComment
 from inspect import getmembers
 from pprint import pprint
 from datetime import date, timedelta
-
+from github import refresh
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -25,7 +25,11 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
+@app.route("/refresh", methods=["GET"] )
+def runBot():
+  refresh()
 @app.route("/register/step1", methods=["GET"] )
+
 def register():
   return render_template('register.html')
 
