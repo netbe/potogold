@@ -27,9 +27,11 @@ db = SQLAlchemy(app)
 
 @app.route("/refresh", methods=["GET"] )
 def runBot():
-  refresh()
-@app.route("/register/step1", methods=["GET"] )
+  github.refresh()
+  return 'OK'
 
+
+@app.route("/register/step1", methods=["GET"] )
 def register():
   return render_template('register.html')
 
