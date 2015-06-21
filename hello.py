@@ -13,7 +13,7 @@ from flask import render_template
 from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
 
-
+mymerchandid=os.environ.get('MERCHANT_ID')
 braintree.Configuration.configure(braintree.Environment.Sandbox,
                                   merchant_id=os.environ.get('BRAINTREE_MERCHANT_ID'),
                                   public_key=os.environ.get('BRAINTREE_PUBLIC_KEY'),
@@ -30,8 +30,6 @@ def register():
 
 @app.route("/register/step2", methods=["POST"])
 def create_user():
-
-
   firstname = request.form["firstname"]
   lastname = request.form["lastname"]
   email = request.form["email"]
@@ -42,25 +40,28 @@ def create_user():
    "last_name": lastname,
    "email": email
   })
-  # create submerchant
-  result = braintree.MerchantAccount.create({
-    'individual': {
-        'first_name': "Jane",
-        'last_name': "Doe",
-        'email': "jane@14ladders.com",
-    },
-    'funding': {
-        'email': "funding@blueladders.com",
-    },
-    "tos_accepted": True,
-    "master_merchant_account_id": mymerchandid
-})
-  #  result.merchant_account.id stores to user and use for rewarding
-  if result.is_success:
-    return render_template('payment.html')
-  else:
-    return render_template('register.html')
 
+  if result.is_success:
+    # create submerchant
+    result = braintree.MerchantAccount.create({
+      'individual': {
+          'first_name': firstname,
+          'last_name': lastname,
+          'email': email,
+      },
+      'funding': {
+          'email': email,
+      },
+      "tos_accepted": True,
+      "master_merchant_account_id": mymerchandid
+    })
+    #  result.merchant_account.id stores to user and use for rewarding
+    if result.is_success:
+      return render_template('payment.html')
+    else:
+      return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
+  else:
+      return render_template('register.html',  errortitle="create customer", error=result.errors.deep_errors)
 
 @app.route("/register/step3", methods=["POST"])
 def add_payment():
@@ -87,11 +88,12 @@ def client_token():
 
 
 @app.route('/')
-def hello():
-  base_url = request.url_root
-  print base_url
-  return_url = request.url_root + "paypal_authenticated"
-  return render_template('login.html', client_id=os.environ.get('PAYPAL_CLIENT_ID'), return_url=return_url, mode=os.environ.get('PAYPAL_MODE'))
+def index():
+  return render_template('index.html')
+
+@app.route('/home')
+def home():
+  return render_template('home.html')
 
 @app.route('/paypal_authenticated')
 def paypal_authenticated():
