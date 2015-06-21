@@ -122,7 +122,8 @@ def paypal_authenticated():
 ##########################Payment###########################################
 def pay(sender_id, receiver_id, github_issue):
   reward = db.session.query(Reward).filter_by(github_issue_url=github_issue, sender_github_username=sender_id, recipient_github_username='')
-  #FIXME how to update reward row (ie to set recipient_github_username)?
+  reward.recipient_github_username = receiver_id
+  db.session.commit()
   # void the authorization transaction
   result = braintree.Transaction.void(reward.auth_transaction_id)
   #FIXME make the transaction between the users
