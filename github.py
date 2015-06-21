@@ -71,6 +71,7 @@ def refresh():
         issue = session.get(issue_url).json()
         if issue['state'] == u'closed':
             print '%s is CLOSED, so notify %s' % (issue_url, bounty_setter)
+            hello.notify_bounty_setter(bounty_setter)
 
 if __name__ == "__main__":
     while True:
