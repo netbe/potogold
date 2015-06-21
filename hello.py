@@ -134,7 +134,9 @@ def paypal_authenticated():
 def pay(sender_id, receiver_id, github_issue):
   reward = session.query(Reward).filter_by(github_issue_url=github_issue,
                                            sender_github_username=sender_id,
-                                           recipient_github_username='')
+                                           recipient_github_username='').first()
+  if reward is None:
+      raise KeyError('could not find reward')
   reward.recipient_github_username = receiver_id
   session.add(reward)
   session.commit()
