@@ -1,8 +1,7 @@
 <html>
 <body>
-<form id="checkout" method="post" action="/register/step3">
+<form id="checkout" method="post" action="/register/step3?user_id={{user_id}}">
   <div id="dropin"></div>
-  <input type="hidden" value="{{user_id}}">
   <input type="submit" value="Add payment method">
 </form>
 

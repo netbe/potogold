@@ -72,19 +72,23 @@ def create_user():
       client_token = braintree.ClientToken.generate({})
       #def __init__(self, email, github_username, github_auth_token, github_refresh_token, braintree_customer_id, braintree_payment_token, nonce, merchant_account_id):
       user = User(email, github, '', '', customer_id, '', '', result.merchant_account.id)
-      return render_template('payment.html', client_token=client_token, user_id=user.id)
-    else:
-      return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
+      return render_template('payment.html', client_token=client_token, user_id=1)
+      # db.session.commit()
+
+      if user:
+        return render_template('payment.html', client_token=client_token, user_id=user.id)
+
+    return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
   else:
       return render_template('register.html',  errortitle="create customer", error=result.errors.deep_errors)
 
 @app.route("/register/step3", methods=["POST"])
 def add_payment():
   user_id = request.form["user_id"]
-  nonce = request.form["payment_method_nonce"]
-  user = db.session.query(User).filter_by(id=user_id)
-  user.nonce = nonce
-  db.session.commit()
+  nonce = request.form['payment_method_nonce']
+  # user = db.session.query(User).filter_by(id=user_id)
+  # user.nonce = nonce
+  # db.session.commit()
   return render_template('success.html')
 
 @app.route("/client_token", methods=["GET"])
