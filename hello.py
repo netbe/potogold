@@ -75,7 +75,7 @@ def create_user():
                   github_auth_token='',
                   github_refresh_token='',
                   braintree_customer_id=customer_id,
-                  braintree_payment_token='', #FIXME needed?
+                  braintree_payment_token='',
                   merchant_account_id=result.merchant_account.id,
                   nonce='')
       session.add(user)
@@ -95,21 +95,15 @@ def add_payment():
   user = session.query(User).filter_by(github_username=github_username).first()
   if user is None:
       raise KeyError('user %s not known' % github_username)
-  user.nonce = nonce
-  session.commit()
-  return render_template('success.html')
-
-@app.route("/client_token", methods=["GET"])
-def client_token():
-  result = braintree.Customer.create({
-    "id": "customer_143",
-    "first_name": "Katrina"
+  result = braintree.PaymentMethod.create({
+    "customer_id": user.braintree_customer_id,
+    "payment_method_nonce": nonce
   })
   if result.is_success:
-    token = braintree.ClientToken.generate({
-      "customer_id": result.customer.id
-    })
-    return render_template('register.html', client_token=token)
+    user.nonce = nonce
+    user.braintree_payment_token = result.payment_method.token
+    session.commit()
+    return render_template('success.html')
   else:
     return "no"
 
@@ -162,7 +156,7 @@ def set_reward(github_user_id, price, issue_url):
   if user is None:
       raise KeyError('user %s unknown' % github_user_id)
   customer = braintree.Customer.find(user.braintree_customer_id)
-  payment_method = braintree.PaymentMethod.find(user.nonce)
+  payment_method = braintree.PaymentMethod.find(user.braintree_payment_token) #OPTIM
   # create transaction
   result = braintree.Transaction.sale({
     "amount": str(price),
