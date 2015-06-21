@@ -107,47 +107,31 @@ def paypal_authenticated():
   else:
     return "could not login"
 
-  # import pdb; pdb.set_trace()
-
-# @app.route('/')
-# def login():
 
 ##########################Payment###########################################
-def pay(receiver_id, github_issue):
+def pay(sender_id, receiver_id, github_issue):
+    #recipient_github_username
+  reward = Reward.query.filter_by(github_issue_url=github_issue, sender_github_username=sender_id)
   # find reward and then the customer attached
   # reward.transaction_id
   result = braintree.Transaction.void(transa)
 
 def set_reward(github_user_id, price, issue_url):
-  # find user from github
-  # user
-  customer = braintree.Customer.find("35653229")
-  payment_method = braintree.PaymentMethod.find("kysd7w")
+  user = User.query.filter_by(github_username=github_user_id).first()
+  if user is None:
+      raise KeyError('user %s unknown' % github_user_id)
+  customer = braintree.Customer.find(user.braintree_customer_id)
+  payment_method = braintree.PaymentMethod.find(user.braintree_payment_token)
   # create reward
+  reward = Reward(issue_url, price, github_user_id, '')
+  db.session.add(reward)
+  db.session.commit()
   # create transaction
   result = braintree.Transaction.sale({
     "amount": "10.00",
     "payment_method_token": payment_method.token,
     "customer_id": customer.id
   })
-
-def set_reward_example():
-  # find user from github
-  customer = braintree.Customer.find("35653229")
-  payment_method = braintree.PaymentMethod.find("kysd7w")
-  # create reward
-  # create transaction
-  result = braintree.Transaction.sale({
-    "amount": "10.00",
-    "payment_method_token": payment_method.token,
-    "customer_id": customer.id
-  })
-  print result
-  if result.is_success:
-    print "yeah!!"
-
-  else:
-    print "nooooo!"
 
 
 class User(db.Model):
