@@ -6,7 +6,7 @@ from requests.auth import HTTPBasicAuth
 import hello
 
 #FIXME need to add the checking for closed issues, to trigger the sending of the email
-POLL_DELAY = 1
+POLL_DELAY = 1.5
 BASE = 'https://api.github.com'
 #FIXME make env var
 USERNAME = 'potogold'
@@ -67,7 +67,10 @@ def refresh():
     for bits in instructions():
         print bits
         perform(*bits)
-
+    for issue_url, bounty_setter in hello.get_bounties():
+        issue = session.get(issue_url).json()
+        if issue['state'] == u'closed':
+            print '%s is CLOSED, so notify %s' % (issue_url, bounty_setter)
 
 if __name__ == "__main__":
     while True:

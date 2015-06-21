@@ -1,21 +1,12 @@
 import os
-import logging
-
 import mailer
 import sms
-
-import braintree
-import json
-import os.path
-from models import User, Reward, SeenComment, Base
-from inspect import getmembers
-from pprint import pprint
-from datetime import date, timedelta
 import github
+import braintree
+from models import User, Reward, SeenComment, Base
 from flask import Flask
 from flask import render_template
 from flask import request
-from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -29,7 +20,6 @@ braintree.Configuration.configure(braintree.Environment.Sandbox,
                                   merchant_id=os.environ.get('BRAINTREE_MERCHANT_ID'),
                                   public_key=os.environ.get('BRAINTREE_PUBLIC_KEY'),
                                   private_key=os.environ.get('BRAINTREE_PRIVATE_KEY'))
-
 
 app = Flask(__name__)
 
@@ -147,9 +137,10 @@ def paypal_authenticated():
     return "could not login"
 
 
-##########################Payment###########################################
 def pay(sender_id, receiver_id, github_issue):
-  reward = session.query(Reward).filter_by(github_issue_url=github_issue, sender_github_username=sender_id, recipient_github_username='')
+  reward = session.query(Reward).filter_by(github_issue_url=github_issue,
+                                           sender_github_username=sender_id,
+                                           recipient_github_username='')
   reward.recipient_github_username = receiver_id
   session.add(reward)
   session.commit()
@@ -159,7 +150,7 @@ def pay(sender_id, receiver_id, github_issue):
   payer = session.query(User).filter_by(github_username=sender_id).first()
   payee = session.query(User).filter_by(github_username=receiver_id).first()
   result = braintree.Transaction.sale({
-    "amount": str(reward.amount), # FIXME why a string?
+    "amount": str(reward.amount),
     'options': {'submit_for_settlement': True},
     "payment_method_token": payer.braintree_payment_token,
     "merchant_account_id": payee.merchant_account_id,
@@ -174,7 +165,7 @@ def set_reward(github_user_id, price, issue_url):
   payment_method = braintree.PaymentMethod.find(user.nonce)
   # create transaction
   result = braintree.Transaction.sale({
-    "amount": str(price), # FIXME why a string?
+    "amount": str(price),
     "payment_method_token": payment_method.token,
     "customer_id": customer.id
   })
@@ -190,13 +181,28 @@ def set_reward(github_user_id, price, issue_url):
   session.commit()
 
 def get_seen_comment_urls():
+    """
+    Return the set of all comment urls that we have processed and can therefore ignore.
+    """
     comments = session.query(SeenComment).all()
     return set([comment.github_comment_url for comment in comments])
 
 def mark_comment_url_seen(url):
+    """
+    Add 'url' to the set of all comment urls that we have processed and can therefore ignore.
+    """
     comment = SeenComment(github_comment_url=url)
     session.add(comment)
     session.commit()
+
+def get_bounties():
+    rewards = session.query(Reward).all()
+    return [(reward.github_issue_url, reward.sender_github_username) for reward in rewards]
+
+def notify_bounty_setter(username):
+    sms.send_sms("004915204062600", 'Your issue has been resolved!') #FIXME don't hardcode Tom's number -- should be a field in the database
+    #send mail
+
 
 if __name__ == "__main__":
     app.run(debug=True)
