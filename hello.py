@@ -65,7 +65,8 @@ def create_user():
     })
     #  result.merchant_account.id stores to user and use for rewarding
     if result.is_success:
-      return render_template('payment.html')
+      client_token = braintree.ClientToken.generate({})
+      return render_template('payment.html', client_token=client_token)
     else:
       return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
   else:

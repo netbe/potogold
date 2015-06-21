@@ -1,5 +1,19 @@
 <html>
 <body>
-todo
+<form id="checkout" method="post" action="/register/step3">
+  <div id="dropin"></div>
+  <input type="submit" value="Add payment method">
+</form>
+
+<script src="https://js.braintreegateway.com/v2/braintree.js"></script>
+
+<script>
+  braintree.setup(
+    // Replace this with a client token from your server
+    "{{client_token}}",
+    "dropin", {
+      container: "dropin"
+    });
+</script>
 </body>
 </html>
