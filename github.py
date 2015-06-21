@@ -23,7 +23,7 @@ implementation note: there doesn't seem to be a link to the comment in the notif
 we are using a set here, in production it will be a database
 """ #FIXME
 #seen_comments = set() # FIXME should be in DB
-seen_comments = set([u'https://api.github.com/repos/netbe/potogold/issues/comments/113826443', u'https://api.github.com/repos/netbe/potogold/issues/comments/113805378', u'https://api.github.com/repos/netbe/potogold/issues/comments/113799706', u'https://api.github.com/repos/netbe/potogold/issues/comments/113834735', u'https://api.github.com/repos/netbe/potogold/issues/comments/113825783'])
+#seen_comments = set([u'https://api.github.com/repos/netbe/potogold/issues/comments/113826443', u'https://api.github.com/repos/netbe/potogold/issues/comments/113805378', u'https://api.github.com/repos/netbe/potogold/issues/comments/113799706', u'https://api.github.com/repos/netbe/potogold/issues/comments/113834735', u'https://api.github.com/repos/netbe/potogold/issues/comments/113825783'])
 
 def mentions():
     """
@@ -34,19 +34,20 @@ def mentions():
             #print json.dumps(notification, indent=2)
             yield notification
 
-def is_unseen(comment_url):
-    return comment_url not in seen_comments
+#def is_unseen(comment_url):
+#    return comment_url not in seen_comments
 
-def mark_seen(comment_url):
-    seen_comments.add(comment_url)
+#def mark_seen(comment_url):
+#    seen_comments.add(comment_url)
 
 def instructions():
+    seen_ids = hello.get_seen_comment_urls()
     for mention in mentions():
         issue_url = mention[u'subject'][u'url']
         for comment in session.get(issue_url + u'/comments').json():
-            if comment[u'body'].startswith('@%s' % USERNAME) and is_unseen(comment[u'url']):
-                session.patch(mention['url']) # mark notification read
-                mark_seen(comment[u'url'])
+            if comment[u'body'].startswith('@%s' % USERNAME) and comment[u'url'] not in seen_ids:
+                session.patch(mention['url']) # mark notification read on GitHub
+                hello.mark_comment_url_seen(comment[u'url']) # mark the comment read in the database
                 author = comment[u'user'][u'login']
                 yield (author, issue_url, comment['body'].strip())
 
