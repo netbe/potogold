@@ -48,9 +48,17 @@ def create_user():
           'first_name': firstname,
           'last_name': lastname,
           'email': email,
+          'date_of_birth': '07/11/1984',
+          'address': {
+            'street_address': "111 Main St",
+            'locality': "Chicago",
+            'region': "IL",
+            'postal_code': "60622"
+        }
       },
       'funding': {
           'email': email,
+          'destination': 'email'
       },
       "tos_accepted": True,
       "master_merchant_account_id": mymerchandid
