@@ -47,6 +47,7 @@ def create_user():
    "email": email
   })
   if result.is_success:
+    customer_id = result.customer.id
     # create submerchant
     result = braintree.MerchantAccount.create({
       'individual': {
@@ -68,7 +69,6 @@ def create_user():
       "tos_accepted": True,
       "master_merchant_account_id": mymerchandid
     })
-    customer_id = result.customer.id
     #  result.merchant_account.id stores to user and use for rewarding
     if result.is_success:
       client_token = braintree.ClientToken.generate({})
