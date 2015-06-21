@@ -39,9 +39,18 @@
         <label for="email1">Email address</label>
         <input type='text' value='email' name='email' class="form-control" id="email1">
       </div>
-      <input type='text' value='firstnamme' name='firstname'>
-      <input type='text' value='lastname' name='lastname'>
-      <input type='text' value='github' name='github'>
+      <div class="form-group">
+        <label for="name1">First Name</label>
+        <input type='text' value='firstnamme' name='firstname' id="name1" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="name2">Last Name</label>
+        <input type='text' value='lastname' name='lastname' id="name2" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="git">Github handle</label>
+        <input type='text' value='github' name='github' id="git" class="form-control">
+      </div>
       <input type='submit' value='Create account' class='btn btn-danger btn-lg'>
       <p>{{errortitle}}</p>
       <p>{{error}}</p>
