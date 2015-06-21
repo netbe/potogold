@@ -45,7 +45,7 @@ def instructions():
                 session.patch(mention['url']) # mark notification read
                 mark_seen(comment[u'url'])
                 author = comment[u'user'][u'login']
-                yield (author, issue_url, comment['body'])
+                yield (author, issue_url, comment['body'].strip())
 
 def set_bounty(author, issue_url, amount):
     comment(issue_url, '@%s offers $%.2f' % (author, amount))
