@@ -48,16 +48,25 @@ def create_user():
           'first_name': firstname,
           'last_name': lastname,
           'email': email,
+          'date_of_birth': '07/11/1984',
+          'address': {
+            'street_address': "111 Main St",
+            'locality': "Chicago",
+            'region': "IL",
+            'postal_code': "60622"
+        }
       },
       'funding': {
           'email': email,
+          'destination': 'email'
       },
       "tos_accepted": True,
       "master_merchant_account_id": mymerchandid
     })
     #  result.merchant_account.id stores to user and use for rewarding
     if result.is_success:
-     return render_template('payment.html')
+      client_token = braintree.ClientToken.generate({})
+      return render_template('payment.html', client_token=client_token)
     else:
       return render_template('register.html', errortitle="create merchant error",error=result.errors.deep_errors)
   else:
