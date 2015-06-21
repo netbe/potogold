@@ -82,7 +82,7 @@ def create_user():
                   github_auth_token='',
                   github_refresh_token='',
                   braintree_customer_id=customer_id,
-                  braintree_payment_token='',
+                  braintree_payment_token='', #FIXME needed?
                   merchant_account_id=result.merchant_account.id,
                   nonce='')
       session.add(user)
@@ -168,7 +168,7 @@ def set_reward(github_user_id, price, issue_url):
   if user is None:
       raise KeyError('user %s unknown' % github_user_id)
   customer = braintree.Customer.find(user.braintree_customer_id)
-  payment_method = braintree.PaymentMethod.find(user.braintree_payment_token)
+  payment_method = braintree.PaymentMethod.find(user.nonce)
   # create transaction
   result = braintree.Transaction.sale({
     "amount": str(price), # FIXME why a string?

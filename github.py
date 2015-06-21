@@ -18,13 +18,6 @@ REWARD_CRIB = r'^\@%s reward \@((\w|-)*)\.{0,1}$' % USERNAME
 session = requests.Session()
 session.auth = HTTPBasicAuth(USERNAME, PASSWORD)
 
-"""
-implementation note: there doesn't seem to be a link to the comment in the notification, so we have to iterate over all the comments in an issue, skipping over the comments that we've already processed.
-we are using a set here, in production it will be a database
-""" #FIXME
-#seen_comments = set() # FIXME should be in DB
-#seen_comments = set([u'https://api.github.com/repos/netbe/potogold/issues/comments/113826443', u'https://api.github.com/repos/netbe/potogold/issues/comments/113805378', u'https://api.github.com/repos/netbe/potogold/issues/comments/113799706', u'https://api.github.com/repos/netbe/potogold/issues/comments/113834735', u'https://api.github.com/repos/netbe/potogold/issues/comments/113825783'])
-
 def mentions():
     """
     Return a generator over the notifications which are mentions.
@@ -33,12 +26,6 @@ def mentions():
         if notification['reason'] == u'mention':
             #print json.dumps(notification, indent=2)
             yield notification
-
-#def is_unseen(comment_url):
-#    return comment_url not in seen_comments
-
-#def mark_seen(comment_url):
-#    seen_comments.add(comment_url)
 
 def instructions():
     seen_ids = hello.get_seen_comment_urls()
