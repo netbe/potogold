@@ -12,10 +12,10 @@
     <title>Pot o' Gold</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="styles/bootstrap.min.css" rel="stylesheet">
+    <link href="static/styles/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="styles/scrolling-nav.css" rel="stylesheet">
+    <link href="static/styles/scrolling-nav.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -81,7 +81,7 @@
                 <div class="col-lg-4">
                 </div>
                 <div class="col-lg-4">
-                <img src="images/bot3.png" class="img-responsive" alt="you're missing out on our amazing logo" style="max-width:350px;">
+                <img src="static/images/bot3.png" class="img-responsive" alt="you're missing out on our amazing logo" style="max-width:350px;">
                 </div>
                 <div class="col-lg-4">
                 </div>
@@ -96,18 +96,18 @@
         <h2 style="margin-top: -80px;" align ="center">Meet the devs<br> <br></h2>
         <div class="col-lg-4">
             <br>
-          <img class="img-circle" src="images/ben.png" alt="You're missing out on: Ben" width="280" height="280">
+          <img class="img-circle" src="static/images/ben.png" alt="You're missing out on: Ben" width="280" height="280">
           <h2>Benjamin Wilson</h2>
           <p>The one and only.</p>
         </div><!-- /.col-lg-4 -->
         <div class="col-lg-4">
-          <img class="img-circle" src="images/francois.jpeg" alt="You're missing out on: Francois" width="280" height="280">
+          <img class="img-circle" src="static/images/francois.jpeg" alt="You're missing out on: Francois" width="280" height="280">
           <h2>François Benaiteau</h2>
           <p>Putting the F into Francais.</p>
         </div><!-- /.col-lg-4 -->
         <div class="col-lg-4">
             <br>
-          <img class="img-circle" src="images/tom.jpeg" alt="You're missing out on: Tom" width="280" height="280">
+          <img class="img-circle" src="static/images/tom.jpeg" alt="You're missing out on: Tom" width="280" height="280">
           <h2>Thomas Lutzeyer</h2>
           <p>Html is life.</p>
         </div><!-- /.col-lg-4 -->
@@ -127,7 +127,7 @@
                 <div class="col-lg-12">
                 </br></br>
                     <p>
-                    <span id="paypal"></span>
+                    <span id="paypal"><a href="/register/step1">Get started</a></span>
                     </p>
                 </div>
             </div>
@@ -135,7 +135,7 @@
                 <div class="col-lg-4">
                 </div>
                 <div class="col-lg-4">
-                <img src="images/bot2.gif" class="img-responsive" alt="you're missing out on our amazing logo" style="max-width:350px;">
+                <img src="static/images/bot2.gif" class="img-responsive" alt="you're missing out on our amazing logo" style="max-width:350px;">
                 </div>
                 <div class="col-lg-4">
                 </div>
@@ -153,20 +153,6 @@
     <!-- Scrolling Nav JavaScript -->
     <script src="scripts/jquery.easing.min.js"></script>
     <script src="scripts/scrolling-nav.js"></script>
-        <script src="https://www.paypalobjects.com/js/external/api.js"></script>
-    <script>
-        paypal.use( ["login"], function(login) {
-        login.render ({
-          "appid": "{{client_id}}",
-          "authend": "{{mode}}",
-          "scopes": "openid",
-          "containerid": "paypal",
-          "locale": "en-us",
-          "returnurl": "{{return_url}}"
-        });
-        });
-    </script>
-
 </body>
 
 </html>
