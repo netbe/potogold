@@ -4,13 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Pot o' Gold is a service to encourage the development of Open Source projects on Github.">
+    <meta name="author" content="Thomas Lutzeyer">
 
     <title>Pot o' Gold</title>
 
     <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
     <link href="static/styles/hairline.css" rel="stylesheet">
     <link href="static/styles/animate.css" rel="stylesheet">
     <style>
@@ -30,26 +29,12 @@
 			</br>
 			Pot o' Gold
 			</br>
-			<!--<span id="paypal"></span>-->
 		</p>
 	</div>
 
 
 
-	<!-- PayPal Core Script -->
-	<script src="https://www.paypalobjects.com/js/external/api.js"></script>
-	<script>
-		paypal.use( ["login"], function(login) {
-  		login.render ({
-  		  "appid": "{{client_id}}",
-  		  "authend": "{{mode}}",
-  		  "scopes": "openid",
-  		  "containerid": "paypal",
-  		  "locale": "en-us",
-  		  "returnurl": "{{return_url}}"
-  		});
-		});
-	</script>
+
 	<script>
       window.setTimeout("myTimer()", 2400);
       function myTimer() {
