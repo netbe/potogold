@@ -5,7 +5,7 @@ def send_email_notification(email, username, fixer_name):
   sg = sendgrid.SendGridClient(os.environ.get('SENGRID_USERNAME'), os.environ.get('SENGRID_PASSWORD'))
   message = sendgrid.Mail()
   message.add_to(email)
-  message.set_subject(username + ', your issue has been resolved')
+  message.set_subject(username + ' - ')
   message.set_from("Potogold")
   message.set_html("   ")
   message.add_filter('templates', 'enable', '1')
