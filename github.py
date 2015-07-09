@@ -4,13 +4,13 @@ import json
 import re
 from requests.auth import HTTPBasicAuth
 import hello
+import os
 
 #FIXME need to add the checking for closed issues, to trigger the sending of the email
 POLL_DELAY = 1.5
 BASE = 'https://api.github.com'
-#FIXME make env var
-USERNAME = 'potogold'
-PASSWORD = 'JrX4vav7?yoh'
+USERNAME = os.environ.get('GITHUB_USERNAME')
+PASSWORD = os.environ.get('GITHUB_PASSWORD')
 
 ADD_CRIB = r'^\@%s add \$([0-9]+(|.[0-9]{0,2}))\.{0,1}$' % USERNAME
 REWARD_CRIB = r'^\@%s reward \@((\w|-)*)\.{0,1}$' % USERNAME
@@ -22,10 +22,14 @@ def mentions():
     """
     Return a generator over the notifications which are mentions.
     """
-    for notification in session.get(BASE + '/notifications').json():
-        if notification['reason'] == u'mention':
-            #print json.dumps(notification, indent=2)
-            yield notification
+    result = session.get(BASE + '/notifications')
+    if result.status_code >= 400:
+        print result.raise_for_status()
+    else:
+        for notification in result.json():
+            if notification['reason'] == u'mention':
+                #print json.dumps(notification, indent=2)
+                yield notification
 
 def instructions():
     seen_ids = hello.get_seen_comment_urls()
