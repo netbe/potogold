@@ -47,7 +47,7 @@ def release_bounty(author, issue_url, recipient):
     hello.pay(author, recipient, issue_url)
 
 def comment(issue_url, text):
-    text = "[Sandbox]" + text
+    text = "[Sandbox] " + text
     url = issue_url + u'/comments'
     post_body = json.dumps({'body': text})
     request = session.post(url, data=post_body)
